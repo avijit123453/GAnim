@@ -1,9 +1,25 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import React, {useState} from 'react';
 import Input from './Input';
-import { checkName } from './validation';
+import {
+  checkUserDetails,
+  validateConfirmPassword,
+  validateEmail,
+  validateName,
+  validatePassword,
+  validatePhoneNumber,
+} from './validation';
 
-const SignUp = () => {
+const SignUp = ({navigation}) => {
+
   const [userInfo, setUserInfo] = useState({
     name: '',
     email: '',
@@ -12,12 +28,7 @@ const SignUp = () => {
     cPassword: '',
   });
 
-  const [isError, setIsError] = useState([]);
-
-  const [error, setError] = useState({
-    field: '',
-    error: '',
-  });
+  const [error, setError] = useState([]);
 
   function updateState(field, value) {
     setUserInfo(pre => ({
@@ -26,19 +37,20 @@ const SignUp = () => {
     }));
   }
 
-  const updateError = (field, error) => {
-    if (error !== '') {
-      const itemIndex = isError.findIndex(item => item.field === field);
+  const updateError = (field, err) => {
+    if (err !== '') {
+      const itemIndex = error.findIndex(item => item.field === field);
+
       if (itemIndex === -1) {
-        isError.push({
+        error.push({
           field: field,
-          error: error,
+          error: err,
         });
         return;
       }
 
-      const updatedItems = isError.map((item, index) =>
-        index === itemIndex ? { ...item, error: error } : item,
+      const updatedItems = error.map((item, index) =>
+        index === itemIndex ? {...item, error: err} : item,
       );
 
       setError(updatedItems);
@@ -47,69 +59,137 @@ const SignUp = () => {
     }
   };
 
-  const removeError = (field) => {
-    const _index = isError.findIndex(item => item?.field === field);
+  const removeError = field => {
+    const _index = error.findIndex(item => item?.field === field);
     if (_index !== -1) {
-      const updatedItems = [...isError.slice(0, _index), ...isError.slice(_index + 1)];
-      setIsError(updatedItems);
+      const updatedItems = [
+        ...error.slice(0, _index),
+        ...error.slice(_index + 1),
+      ];
+      setError(updatedItems);
     }
   };
 
+  function registerUser(userInfo) {
+    let users = []; // all users
+
+    let obj = {...userInfo};
+    obj.id = users.length + 1;
+    obj.email = userInfo.email?.toLowerCase();
+
+    let isExits = users.filter(item => item.email == obj.email).length;
+
+    if (isExits == 0) {
+      // add - obj
+      console.log('Register Successfully');
+    } else {
+      console.log('Email already exists. Please choose a different email id');
+    }
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <Text style={styles.title1}>Register</Text>
-      <Text style={styles.title2}>Please enter details to register</Text>
-      <Input
-        placeholder={'Name'}
-        value={userInfo.name}
-        onChangeText={v => updateState('name', v)}
-        error={error}
-        onChange={e => {
-          let error = checkName(e.nativeEvent.text);
-          console.log('error -- ', error);
-          updateError('name', error);
-        }}
-      />
-      <Input
-        placeholder={'Email'}
-        value={userInfo.email}
-        onChangeText={v => updateState('email', v)}
-        error={error}
-      />
-      <Input
-        placeholder={'Mobile Number'}
-        value={userInfo.number}
-        onChangeText={v => updateState('number', v)}
-        keyboardType={'numeric'}
-        error={error}
-      />
-      <Input
-        placeholder={'Password'}
-        value={userInfo.password}
-        onChangeText={v => updateState('password', v)}
-        error={error}
-      />
-      <Input
-        placeholder={'Confirm Password'}
-        value={userInfo.cPassword}
-        onChangeText={v => updateState('cPassword', v)}
-        error={error}
-      />
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        style={{flex: 1}}
+        contentContainerStyle={{
+          paddingTop: 85,
+        }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Text style={styles.title1}>Register</Text>
+          <Text style={styles.title2}>Please enter details to register</Text>
+          <Input
+            placeholder={'Name'}
+            value={userInfo.name}
+            onChangeText={v => updateState('name', v)}
+            error={error}
+            onChange={e => {
+              updateError('name', validateName(e.nativeEvent.text));
+            }}
+          />
+          <Input
+            placeholder={'Email'}
+            value={userInfo.email}
+            onChangeText={v => updateState('email', v)}
+            error={error}
+            onChange={e => {
+              updateError('email', validateEmail(e.nativeEvent.text));
+            }}
+          />
+          <Input
+            placeholder={'Mobile Number'}
+            value={userInfo.number}
+            onChangeText={v => updateState('number', v)}
+            keyboardType={'numeric'}
+            error={error}
+            onChange={e => {
+              updateError(
+                'mobile number',
+                validatePhoneNumber(e.nativeEvent.text),
+              );
+            }}
+          />
+          <Input
+            placeholder={'Password'}
+            value={userInfo.password}
+            onChangeText={v => updateState('password', v)}
+            error={error}
+            onChange={e => {
+              updateError('password', validatePassword(e.nativeEvent.text));
+            }}
+          />
+          <Input
+            placeholder={'Confirm Password'}
+            value={userInfo.cPassword}
+            onChangeText={v => updateState('cPassword', v)}
+            error={error}
+            onChange={e => {
+              updateError(
+                'confirm password',
+                validateConfirmPassword(userInfo.password, e.nativeEvent.text),
+              );
+            }}
+          />
 
-      <TouchableOpacity style={styles.btn}>
-        <Text style={styles.title}>Register</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            disabled={error.length > 0}
+            style={[
+              styles.btn,
+              {
+                backgroundColor: error.length > 0 ? '#dfdfdf' : '#03BEBE',
+              },
+            ]}
+            onPress={() => {
+              var err = checkUserDetails(userInfo);
+              if (err.length > 0) {
+                setError(err);
+              } else {
+                registerUser(userInfo);
+              }
+            }}>
+            <Text style={styles.title}>Register</Text>
+          </TouchableOpacity>
 
-      <Text style={styles.txt}>
-        Already have an account?
-        {<Text style={styles.txt2}> Login</Text>}
-      </Text>
-    </View>
+          <Text style={styles.txt}>
+            Already have an account?
+            {
+              <Text
+                // onPress={() => navigation.navigate('Login')}
+                style={styles.txt2}>
+                {' '}
+                Login
+              </Text>
+            }
+          </Text>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -119,7 +199,6 @@ const styles = StyleSheet.create({
   btn: {
     height: 50,
     width: '90%',
-    backgroundColor: '#03BEBE',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',

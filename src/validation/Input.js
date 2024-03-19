@@ -11,14 +11,19 @@ const Input = ({
 }) => {
   const [isFocus, setFocus] = useState(false);
 
+  var arr = error?.filter(
+    item => item.field == String(placeholder).toLowerCase(),
+  );
+
   return (
     <View
       style={{
         width: '90%',
         marginBottom: 10,
         marginTop: 15,
+        // backgroundColor:'red',
       }}>
-      {value !== '' && (
+      {value == '' && (
         <Text
           style={{
             fontSize: 12,
@@ -31,16 +36,10 @@ const Input = ({
       )}
       <TextInput
         style={{
-          //   flex: 1,
           color: 'black',
           height: 40,
           width: '100%',
-          borderColor:
-            error?.field == placeholder && error.error !== ''
-              ? 'red'
-              : isFocus
-              ? 'green'
-              : '#dcdcdc',
+          borderColor: arr.length > 0 ? 'red' : isFocus ? 'green' : '#dcdcdc',
           borderBottomWidth: 1,
         }}
         keyboardType={keyboardType}
@@ -52,14 +51,14 @@ const Input = ({
         onBlur={() => setFocus(false)}
         onChange={onChange}
       />
-      {error.field == placeholder && error.error !== '' && (
+      {arr.length > 0 && (
         <Text
           style={{
             color: 'red',
             fontSize: 12,
             textAlign: 'right',
           }}>
-          {error?.error}
+          {arr[0]?.error}
         </Text>
       )}
     </View>
