@@ -17,6 +17,7 @@ const ChatItem = ({updateRowRef, setReplyOnSwipeOpen, ...props}) => {
           borderBottomRightRadius: item?.sender == 'Alice' ? 20 : 0,
           paddingHorizontal: 15,
           paddingVertical: 8,
+          marginHorizontal: 8,
         }}>
         <Text
           style={{
@@ -25,6 +26,26 @@ const ChatItem = ({updateRowRef, setReplyOnSwipeOpen, ...props}) => {
           }}>
           {item?.message}
         </Text>
+
+        <Image
+          source={require('../../images/frame21.png')}
+          style={{
+            height: 18,
+            width: 18,
+            resizeMode: 'contain',
+            position: 'absolute',
+            alignSelf: item?.sender !== 'Alice' ? 'flex-end' : 'flex-start',
+            transform: [
+              {scaleX: item?.sender !== 'Alice' ? 1 : -1},
+              {rotate: '10deg'},
+            ],
+            tintColor: item?.sender !== 'Alice' ? '#DCF8C7' : 'white',
+            bottom: -7,
+            tintColor: item?.sender == 'Alice' ? '#dcdcdc' : 'green',
+            right: item?.sender == 'Alice' ? undefined : -12,
+            left: item?.sender == 'Alice' ? -12 : undefined,
+          }}
+        />
       </View>
     );
   }
@@ -137,7 +158,7 @@ const ChatItem = ({updateRowRef, setReplyOnSwipeOpen, ...props}) => {
             style={{
               width: 20,
               height: 20,
-              tintColor: 'green',
+              tintColor: 'black',
             }}
             source={{
               uri: 'https://cdn-icons-png.flaticon.com/128/6996/6996004.png',

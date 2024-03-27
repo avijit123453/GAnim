@@ -9,11 +9,18 @@ import {
 import React, {useEffect, useState} from 'react';
 import ReplyMessage from './ReplyMessage';
 
-const ChatInput = ({reply, clearReply, value, onChangeText, onScroll}) => {
+const ChatInput = ({reply, clearReply, onScroll, onSend}) => {
+  const [input, setInput] = useState('');
 
   function onPressScroll() {
     if (onScroll) {
       onScroll();
+    }
+  }
+
+  function onPress(obj) {
+    if (onSend) {
+      onSend(obj);
     }
   }
 
@@ -24,8 +31,8 @@ const ChatInput = ({reply, clearReply, value, onChangeText, onScroll}) => {
         <TextInput
           style={styles.input}
           placeholder="Type Message...."
-          value={value}
-          onChangeText={onChangeText}
+          value={input}
+          onChangeText={setInput}
           placeholderTextColor={'grey'}
           onFocus={() => {
             onPressScroll();
@@ -38,6 +45,22 @@ const ChatInput = ({reply, clearReply, value, onChangeText, onScroll}) => {
         <TouchableOpacity
           onPress={() => {
             Keyboard.dismiss();
+
+            if (input !== '') {
+              let obj = {};
+              obj.sender = 'Bob';
+              obj.timestamp = new Date().toISOString();
+              obj.message = input;
+              obj.id = Math.floor(Math.random() * 100);
+
+              if (reply !== null) {
+                obj.reply = reply;
+              }
+
+              onPress(obj);
+            } else {
+              // log
+            }
           }}
           style={styles.sendButton}>
           <Image

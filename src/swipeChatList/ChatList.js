@@ -16,7 +16,6 @@ import Animated from 'react-native-reanimated';
 
 const ChatList = () => {
   const [messagesList, setMessagesList] = useState(messages);
-  const [input, setInput] = useState('');
   const messageRef = useRef();
   const swipeableRowRef = useRef(null);
   const [replyMessage, setReplyMessage] = useState(null);
@@ -78,11 +77,10 @@ const ChatList = () => {
         />
 
         <ChatInput
-          value={input}
-          onChangeText={setInput}
           reply={replyMessage}
           clearReply={clearReplyMessage}
           onScroll={() => scrollToEnd()}
+          onSend={_message => console.log('MMMM ->> ',_message)}
         />
       </SafeAreaView>
     </KeyboardAvoidingView>

@@ -4,6 +4,7 @@ import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
+  interpolate,
 } from 'react-native-reanimated';
 
 const ReplyMessage = ({clearReply, message}) => {
@@ -38,17 +39,31 @@ const ReplyMessage = ({clearReply, message}) => {
     }
   }, [message, isOpen]);
 
-  // console.log('message -- ',message);
+  const animatedImgStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(interpolate(boxHeight.value, [0, 65], [0, 1])),
+      width: withTiming(interpolate(boxHeight.value, [0, 65], [0, 20])),
+      height: withTiming(interpolate(boxHeight.value, [0, 65], [0, 20])),
+      opacity: interpolate(boxHeight.value, [0, 65], [0, 1]),
+      transform: [
+        {translateX: interpolate(boxHeight.value, [0, 65], [-22, 0])},
+        {
+          rotateY: withTiming(
+            interpolate(boxHeight.value, [0, 65], ['160deg', '0deg']),
+          ),
+        },
+      ],
+    };
+  });
 
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
       <Animated.View style={[styles.replyImageContainer, animatedColor]}>
-        <Image
+        <Animated.Image
           style={[
-            styles.replyImage,
+            animatedImgStyle,
             {
               tintColor: isUser ? '#2196F3' : 'green',
-              transform: [{rotateY: '180deg'}]
             },
           ]}
           source={{
@@ -90,17 +105,13 @@ const styles = StyleSheet.create({
     borderTopColor: 'lightgrey',
     backgroundColor: 'white',
   },
-  replyImage: {
-    width: 20,
-    height: 20,
-  },
   replyImageContainer: {
-    paddingLeft: 8,
-    paddingRight: 6,
     borderRightWidth: 2,
     marginRight: 6,
     height: '80%',
     justifyContent: 'center',
+    width: 35,
+    alignItems: 'center',
   },
   crossButtonIcon: {
     width: 18,
